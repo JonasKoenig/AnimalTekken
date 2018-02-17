@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
 public class PlayerMotor : MonoBehaviour {
 
@@ -7,14 +8,15 @@ public class PlayerMotor : MonoBehaviour {
     public string moveLeft;
 	
 	private float speed = 0.2f;
-    private float jumpSpeed = 1.2f;
+    private float jumpSpeed = 3f;
 
     private KeyCode up;
 	private KeyCode left;
 	private KeyCode right;
     private Rigidbody rb;
 
-	void Start () {
+
+    void Awake () {
         up = (KeyCode)System.Enum.Parse(typeof(KeyCode), moveUp, true);
         left = (KeyCode)System.Enum.Parse(typeof(KeyCode), moveLeft, true);
         right = (KeyCode)System.Enum.Parse(typeof(KeyCode), moveRight, true);
@@ -22,7 +24,8 @@ public class PlayerMotor : MonoBehaviour {
     }
 
 	void Update() {
-        if (Input.GetKey(up))
+        Boolean grounded = Physics.Raycast(transform.position, Vector3.down, 0.1f);
+        if (Input.GetKey(up) && grounded)
         {
             Vector3 direction = new Vector3(0f, jumpSpeed, 0f);
             rb.AddForce(direction, ForceMode.Impulse);
