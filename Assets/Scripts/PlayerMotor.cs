@@ -7,7 +7,7 @@ public class PlayerMotor : MonoBehaviour {
     public string moveRight;
     public string moveLeft;
 	
-	private float midAirSpeed = 0.2f;
+	private float midAirSpeed = 0.5f;
     private float groundSpeed = 10f;
     private float jumpVelocity = 12f;
     private float fallMultiplier = 2f;
