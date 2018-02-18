@@ -17,7 +17,7 @@ public class PlayerMotor : MonoBehaviour {
     private float groundSpeed = 8f;
     private float airSpeed = 8f;
 
-    private float jumpSpeed = 14f;
+    private float jumpSpeed = 10f;
     public bool hasJumped = false;
     public bool isGrounded = false;
     private float fallMultiplier = 6f;
