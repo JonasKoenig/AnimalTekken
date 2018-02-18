@@ -3,14 +3,24 @@ using UnityEngine;
 
 public class PlayerMotor : MonoBehaviour {
 
+    public GameObject CharacterModel;
+    private Transform initialModelTransform;
+
     public string moveUp;
     public string moveRight;
     public string moveLeft;
+
+    private bool lookingRight;
+    private float turnSpeed = 10f;
 	
-	private float midAirSpeed = 0.5f;
-    private float groundSpeed = 10f;
-    private float jumpVelocity = 12f;
-    private float fallMultiplier = 2f;
+	//private float midAirAccelleration = 0.4f;
+    private float groundSpeed = 8f;
+    private float airSpeed = 8f;
+
+    private float jumpSpeed = 14f;
+    public bool hasJumped = false;
+    public bool isGrounded = false;
+    private float fallMultiplier = 6f;
     private float lowJumpMultiplier = 2.5f;
 
     private KeyCode up;
@@ -18,18 +28,28 @@ public class PlayerMotor : MonoBehaviour {
 	private KeyCode right;
     private Rigidbody rb;
 
-
     void Awake () {
         up = (KeyCode)System.Enum.Parse(typeof(KeyCode), moveUp, true);
         left = (KeyCode)System.Enum.Parse(typeof(KeyCode), moveLeft, true);
         right = (KeyCode)System.Enum.Parse(typeof(KeyCode), moveRight, true);
         rb = GetComponent<Rigidbody>();
+
+        initialModelTransform = CharacterModel.transform;
+        
+        lookingRight = (transform.position.x < 0);
     }
 
-	void FixedUpdate() {
+
+
+	void Update() {
+
+        ResetPlayerOnDeath();
+
 
         // movement according to user input
         InputToMovement();
+
+
 
         // snappy jumping/falling
         if (rb.velocity.y < 0)
@@ -39,49 +59,69 @@ public class PlayerMotor : MonoBehaviour {
         {
             rb.velocity += Vector3.up * Physics.gravity.y * (lowJumpMultiplier - 1) * Time.deltaTime;
         }
+
+
+
+
     }
 
     void InputToMovement()
     {
-        bool upInput = Input.GetKey(up);
+        bool upInput = Input.GetKeyDown(up);
         bool leftInput = Input.GetKey(left);
         bool rightInput = Input.GetKey(right);
 
-        Vector3 upMovement = Vector3.zero;
-        Vector3 leftMovement = Vector3.zero;
-        Vector3 rightMovement = Vector3.zero;
 
-        Boolean grounded = Physics.Raycast(transform.position, Vector3.down, 0.1f);
-        if (grounded)
-        {
-            rb.velocity = new Vector3(0f, rb.velocity.y, 0f);
+        int yMovementInput = (upInput) ? 1 : 0;
+        int xMovementInput = ((leftInput) ? -1:0) + ((rightInput)? 1:0);
+
+        //lookingRight = (xMovementInput != 0f);
+
+
+
+        if(xMovementInput != 0){
+            lookingRight = xMovementInput > 0;
         }
-        if (upInput && grounded && rb.velocity.y <= 0)
+        // player looks in walking direction
+        Quaternion playerOrientation;
+        playerOrientation = Quaternion.Euler(new Vector3(0f, initialModelTransform.rotation.y + ((lookingRight) ? 91f : -91f), 0f));
+        CharacterModel.transform.rotation = Quaternion.Lerp(CharacterModel.transform.rotation, playerOrientation, Time.deltaTime * turnSpeed);
+
+
+
+
+        isGrounded = Physics.Raycast(transform.position, Vector3.down, 1f);
+
+
+        if (isGrounded && !hasJumped)
         {
-            upMovement = Vector3.up * jumpVelocity;
-        }
-        if (leftInput && !rightInput)
-        {
-            if (grounded)
-            {
-                rb.velocity = new Vector3(groundSpeed, rb.velocity.y, 0f);
-            } else
-            {
-                leftMovement = Vector3.right * midAirSpeed;
-            }
-        }
-        if (rightInput && !leftInput)
-        {
-            if (grounded)
-            {
-                rb.velocity = new Vector3(-groundSpeed, rb.velocity.y, 0f);
-            } else
-            {
-            leftMovement = Vector3.left * midAirSpeed;
-            }
+            rb.velocity = new Vector3(xMovementInput*groundSpeed, rb.velocity.y + yMovementInput*jumpSpeed, 0f);
+            if (yMovementInput > 0) hasJumped = true;
+
+        } else {
+
+            //mid air
+            rb.velocity = new Vector3(xMovementInput * airSpeed, rb.velocity.y, 0f);
+
         }
 
-        rb.AddForce(upMovement + leftMovement + rightMovement, ForceMode.Impulse);
+
+        if (rb.velocity.y <= 0)
+            hasJumped = false;
+
     }
+
+    void ResetPlayerOnDeath()
+    {
+        if (transform.position.y < -20f)
+        {
+            // TODO: set spawn positions 
+            transform.position = new Vector3(0f, 0f, 0f);
+
+        }
+    }
+
+
+
 
 }
