@@ -1,9 +1,8 @@
-﻿using System;
-using UnityEngine;
+﻿using UnityEngine;
 
 public class PlayerMotor : MonoBehaviour {
 
-    public GameObject CharacterModel;
+    private GameObject CharacterModel;
     private Transform initialModelTransform;
 
     public string moveUp;
@@ -34,9 +33,20 @@ public class PlayerMotor : MonoBehaviour {
         right = (KeyCode)System.Enum.Parse(typeof(KeyCode), moveRight, true);
         rb = GetComponent<Rigidbody>();
 
-        initialModelTransform = CharacterModel.transform;
-        
+
         lookingRight = (transform.position.x < 0);
+
+
+
+        RandomPlayerModel();
+
+
+
+
+
+
+
+
     }
 
 
@@ -114,12 +124,25 @@ public class PlayerMotor : MonoBehaviour {
 
     public void ResetPlayer()
     {
-
+        RandomPlayerModel();
         // TODO: set spawn positions 
         transform.position = new Vector3(0f, 0f, 0f);
     }
 
 
+
+    void RandomPlayerModel(){
+        
+        if (CharacterModel != null){
+            Destroy(CharacterModel.gameObject);
+        }
+        //CharacterModel = new GameObject(); 
+        Object[] playerModels = Resources.LoadAll("AnimalModels", typeof(Object));
+        Debug.Log("Found " + playerModels.Length + " Charactermodels");
+        CharacterModel = Instantiate((GameObject)playerModels[Random.Range(0, playerModels.Length)], transform);
+        initialModelTransform = CharacterModel.transform;
+
+    }
 
 
 }
