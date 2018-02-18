@@ -42,9 +42,10 @@ public class PlayerMotor : MonoBehaviour {
 
 
 	void Update() {
-
-        ResetPlayerOnDeath();
-
+        if (transform.position.y < -20f)
+        {
+            ResetPlayer();
+        }
 
         // movement according to user input
         InputToMovement();
@@ -111,14 +112,11 @@ public class PlayerMotor : MonoBehaviour {
 
     }
 
-    void ResetPlayerOnDeath()
+    public void ResetPlayer()
     {
-        if (transform.position.y < -20f)
-        {
-            // TODO: set spawn positions 
-            transform.position = new Vector3(0f, 0f, 0f);
 
-        }
+        // TODO: set spawn positions 
+        transform.position = new Vector3(0f, 0f, 0f);
     }
 
 
